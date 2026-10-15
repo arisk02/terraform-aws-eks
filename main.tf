@@ -299,9 +299,9 @@ resource "aws_cloudwatch_log_group" "this" {
   log_group_class   = var.cloudwatch_log_group_class
 
   tags = merge(
+    { Name = "/aws/eks/${var.name}/cluster" },
     var.tags,
     var.cloudwatch_log_group_tags,
-    { Name = "/aws/eks/${var.name}/cluster" }
   )
 }
 
@@ -466,8 +466,8 @@ resource "aws_security_group" "cluster" {
   vpc_id      = var.vpc_id
 
   tags = merge(
-    var.tags,
     { "Name" = local.security_group_name },
+    var.tags,
     var.security_group_tags
   )
 
