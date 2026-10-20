@@ -363,7 +363,7 @@ resource "aws_launch_template" "this" {
 
     content {
       resource_type = tag_specifications.key
-      tags          = merge(var.tags, { Name = var.name }, var.launch_template_tags)
+      tags          = merge({ Name = var.name }, var.tags, var.launch_template_tags)
     }
   }
 
@@ -577,8 +577,8 @@ resource "aws_eks_node_group" "this" {
   }
 
   tags = merge(
-    var.tags,
-    { Name = var.name }
+    { Name = var.name },
+    var.tags
   )
 }
 
@@ -799,8 +799,8 @@ resource "aws_security_group" "this" {
   vpc_id      = data.aws_subnet.this[0].vpc_id
 
   tags = merge(
-    var.tags,
     { "Name" = local.security_group_name },
+    var.tags,
     var.security_group_tags
   )
 
@@ -823,9 +823,9 @@ resource "aws_vpc_security_group_ingress_rule" "this" {
   referenced_security_group_id = each.value.self ? aws_security_group.this[0].id : each.value.referenced_security_group_id
   security_group_id            = aws_security_group.this[0].id
   tags = merge(
+    { "Name" = coalesce(each.value.name, "${local.security_group_name}-${each.key}") },
     var.tags,
     var.security_group_tags,
-    { "Name" = coalesce(each.value.name, "${local.security_group_name}-${each.key}") },
     each.value.tags
   )
   to_port = try(coalesce(each.value.to_port, each.value.from_port), null)
@@ -845,9 +845,9 @@ resource "aws_vpc_security_group_egress_rule" "this" {
   referenced_security_group_id = each.value.self ? aws_security_group.this[0].id : each.value.referenced_security_group_id
   security_group_id            = aws_security_group.this[0].id
   tags = merge(
+    { "Name" = coalesce(each.value.name, "${local.security_group_name}-${each.key}") },
     var.tags,
     var.security_group_tags,
-    { "Name" = coalesce(each.value.name, "${local.security_group_name}-${each.key}") },
     each.value.tags
   )
   to_port = each.value.to_port
